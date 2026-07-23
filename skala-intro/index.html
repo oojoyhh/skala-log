@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SKALA | 함께 성장하는 기술과 사람</title>
+    <meta
+      name="description"
+      content="SKALA는 기술과 사람, 경험을 연결해 더 나은 미래를 만들어가는 조직입니다."
+    />
+    <style>
+      :root {
+        --bg: #07111f;
+        --panel: #0f2038;
+        --text: #f5f7fb;
+        --muted: #9eb2c7;
+        --accent: #4cc9f0;
+        --accent-strong: #3a86ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Pretendard", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, var(--bg), #13253f);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0 40px;
+      }
+
+      .brand {
+        font-size: 1.3rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+      }
+
+      .nav a {
+        margin-left: 20px;
+        color: var(--muted);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 32px;
+        align-items: center;
+        padding: 40px 0 60px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        line-height: 1.15;
+        margin: 0 0 16px;
+      }
+
+      .hero p {
+        font-size: 1.05rem;
+        color: var(--muted);
+        margin: 0 0 24px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .btn-primary {
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+        color: white;
+      }
+
+      .btn-secondary {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text);
+      }
+
+      .card {
+        background: rgba(15, 32, 56, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .stat {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 14px;
+        padding: 16px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+
+      section {
+        padding: 24px 0;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .feature {
+        padding: 20px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      footer {
+        padding: 40px 0 24px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 800px) {
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .nav a {
+          margin-left: 0;
+          margin-right: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">SKALA</div>
+        <nav class="nav">
+          <a href="#about">소개</a>
+          <a href="#vision">비전</a>
+          <a href="#contact">연락처</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div>
+            <h1>기술과 사람을 연결해, 더 나은 미래를 만듭니다.</h1>
+            <p>
+              SKALA는 아이디어를 현실로 바꾸는 실행력, 지속 가능한 성장, 그리고
+              협업의 가치를 중시하는 팀입니다. 고객의 문제를 깊이 이해하고,
+              함께 고민하며 의미 있는 결과를 만들어갑니다.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#contact">문의하기</a>
+              <a class="btn btn-secondary" href="#about">더 알아보기</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>SKALA가 믿는 가치</h2>
+            <p>
+              빠르게 움직이되, 꾸준히 성장하고, 함께 웃을 수 있는 환경을 만들기 위해
+              노력합니다.
+            </p>
+            <div class="stats">
+              <div class="stat">
+                <strong>01</strong>
+                <span>문제 해결 중심</span>
+              </div>
+              <div class="stat">
+                <strong>02</strong>
+                <span>협업과 신뢰</span>
+              </div>
+              <div class="stat">
+                <strong>03</strong>
+                <span>지속 가능한 성장</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="about">
+          <h2 class="section-title">SKALA 소개</h2>
+          <div class="grid">
+            <div class="feature">
+              <h3>Who We Are</h3>
+              <p>기술과 경험을 바탕으로 사람과 조직이 더 나은 방향으로 나아가도록 돕는 팀입니다.</p>
+            </div>
+            <div class="feature">
+              <h3>What We Do</h3>
+              <p>서비스 기획, 실행, 개선까지 하나의 흐름으로 연결해 실제 성과를 만들어냅니다.</p>
+            </div>
+            <div class="feature">
+              <h3>Why It Matters</h3>
+              <p>단순한 결과보다, 함께 성장하는 과정과 지속 가능한 변화를 더 중요하게 생각합니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="vision">
+          <h2 class="section-title">우리의 비전</h2>
+          <p>
+            SKALA는 기술을 통해 복잡한 문제를 단순하게 풀고, 사람과 조직이 더 편하고
+            유의미하게 연결되도록 만드는 것을 목표로 합니다. 작은 변화가 모여 큰
+            성장을 만들 수 있다고 믿습니다.
+          </p>
+        </section>
+      </main>
+
+      <footer id="contact">
+        <p>문의: hello@skala.example</p>
+        <p>© 2026 SKALA. All rights reserved.</p>
+      </footer>
+    </div>
+  </body>
+</html>
