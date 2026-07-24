@@ -9,6 +9,15 @@ body {
     padding: 45px;
 }
 
+.container {
+    max-width: 800px;
+    margin: 30 auto;
+    padding: 45px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* 가장 큰 제목 */
 h1 {
     color: #315c45;
@@ -70,4 +79,50 @@ hr {
 img {
     max-width: 100%;
     border-radius: 5px;
+}
+
+.trip-card {
+    color: #484b45;
+    background-color: #f9f9f9;
+    boarder: 1px solid #d8d3c4;
+    boarder-left: 5px solid #7fa889;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+.trip-card:hover {
+    background-color: #eaf1e6;
+}
+
+/* 시간표 */
+table {
+    width: 100%;
+    margin: 25px 0;
+
+    border-collapse: collapse;
+    background-color: #fffdf9;
+}
+
+th,
+td {
+    padding: 14px 12px;
+    border: 1px solid #cad6c7;
+    text-align: center;
+}
+
+th {
+    color: #ffffff;
+    background-color: #587a61;
+}
+
+td {
+    color: #555b54;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f2f5ee;
+}
+
+tbody tr:hover {
+    background-color: #e5eee1;
 }
