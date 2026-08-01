@@ -1,3 +1,2 @@
 # SKALA-HTML-Practice
-
-20260723 연습
+HTML, CSS, Javascript 과제 파일입니다.
