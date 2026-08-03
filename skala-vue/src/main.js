@@ -5,12 +5,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 
-import BaseButton from './components/BaseButton'
-import BaseInput from './components/BaseInput.vue'
-
 const app = createApp(App)
 app.use(createPinia())
 
 app.mount('#app')
-
-≈
