@@ -4,9 +4,8 @@
 
 - `src/Components/tuned/TunedWeatherDashboard.vue`
 - `src/Components/tuned/TunedWeatherCard.vue`
-- `src/Components/tuned/MyLocationSelector.vue`
 
-실습 5의 라우터와 Pinia 단위 설정을 사용하면서 내 위치, 정렬, 검색, 온도 라벨을 추가한 화면이다.
+실습 5의 라우터와 Pinia 단위 설정을 사용하면서 내 위치(카드 핀 고정), 검색(URL 쿼리 반영), 정렬, 온도 라벨을 추가한 화면이다.
 
 ## 실습 1~5
 

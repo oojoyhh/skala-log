@@ -1,10 +1,10 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
-import MyLocationSelector from './MyLocationSelector.vue'
 import TunedWeatherCard from './TunedWeatherCard.vue'
 
+const route = useRoute()
 const router = useRouter()
 
 const weatherList = ref([
@@ -34,9 +34,14 @@ const filteredWeatherList = computed(() => {
   return weatherList.value.filter((city) => city.name.includes(query))
 })
 
-// 내 위치를 검색 결과의 맨 위로 정렬한다.
+// 내 지역은 검색어와 무관하게 항상 목록 맨 위에 노출한다.
 const displayedWeatherList = computed(() => {
-  return [...filteredWeatherList.value].sort((cityA, cityB) => {
+  const filtered = filteredWeatherList.value
+  const pinnedCity = myCityInfo.value
+  const pinnedIsInFiltered = pinnedCity && filtered.some((city) => city.id === pinnedCity.id)
+  const list = pinnedCity && !pinnedIsInFiltered ? [pinnedCity, ...filtered] : filtered
+
+  return [...list].sort((cityA, cityB) => {
     const cityAIsMyCity = cityA.id === myCityId.value
     const cityBIsMyCity = cityB.id === myCityId.value
 
@@ -72,7 +77,7 @@ const goToWeatherDetail = (city) => {
   router.push(`/weather/${city.id}`)
 }
 
-// 저장된 내 위치가 있다면 화면이 열릴 때 불러온다.
+// 저장된 내 위치와 공유 가능한 검색어(URL 쿼리)를 화면이 열릴 때 불러온다.
 onMounted(() => {
   const savedCityId = localStorage.getItem('tunedMyCityId')
   const isValidCity = weatherList.value.some((city) => city.id === savedCityId)
@@ -80,37 +85,30 @@ onMounted(() => {
   if (isValidCity) {
     myCityId.value = savedCityId
   }
+
+  if (route.query.search) {
+    searchQuery.value = route.query.search
+  }
 })
 
 // 내 위치가 바뀔 때마다 다음 방문을 위해 저장한다.
 watch(myCityId, (cityId) => {
   localStorage.setItem('tunedMyCityId', cityId)
 })
+
+// 검색어를 URL 쿼리에 반영해 검색 상태를 공유/새로고침해도 유지되게 한다.
+watch(searchQuery, (newQuery) => {
+  router.push({
+    path: route.path,
+    query: { search: newQuery || undefined },
+  })
+})
 </script>
 
 <template>
   <div class="tuned-dashboard">
     <section class="tuned-panel">
-      <h2>📍 내 지역 설정</h2>
-
-      <MyLocationSelector
-        :cities="weatherList"
-        :selected-city-id="myCityId"
-        @update-my-city="updateMyCity"
-      />
-
-      <div v-if="myCityInfo" class="tuned-my-location-preview">
-        <TunedWeatherCard
-          :city="myCityInfo"
-          is-my-city
-          @select-card="selectCity"
-          @click-detail="goToWeatherDetail"
-        />
-      </div>
-    </section>
-
-    <section class="tuned-panel">
-      <h2>🔍 도시 검색</h2>
+      <h2>🔍 지역별 날씨 검색</h2>
 
       <input
         v-model="searchQuery"
@@ -119,13 +117,7 @@ watch(myCityId, (cityId) => {
         placeholder="검색할 도시 이름 입력"
       />
 
-      <p class="tuned-search-message">
-        검색 중인 도시: <strong>{{ searchQuery }}</strong>
-      </p>
-    </section>
-
-    <section class="tuned-panel">
-      <h2>🏙️ 지역별 날씨 현황</h2>
+      <p class="tuned-pin-hint">📌 카드의 핀 아이콘을 누르면 내 지역으로 고정됩니다.</p>
 
       <TransitionGroup
         v-if="displayedWeatherList.length > 0"
@@ -140,6 +132,7 @@ watch(myCityId, (cityId) => {
           :is-my-city="city.id === myCityId"
           @select-card="selectCity"
           @click-detail="goToWeatherDetail"
+          @set-my-city="updateMyCity"
         />
       </TransitionGroup>
 
@@ -172,10 +165,6 @@ watch(myCityId, (cityId) => {
   font-size: 21px;
 }
 
-.tuned-my-location-preview {
-  margin-top: 18px;
-}
-
 .tuned-search-input {
   width: 100%;
   height: 44px;
@@ -193,13 +182,16 @@ watch(myCityId, (cityId) => {
   box-shadow: 0 0 0 3px rgb(67 143 209 / 18%);
 }
 
-.tuned-search-message {
+.tuned-pin-hint {
   margin: 8px 0 0;
+  color: #68788a;
+  font-size: 14px;
 }
 
 .tuned-weather-list {
   display: grid;
   gap: 14px;
+  margin-top: 16px;
 }
 
 .tuned-weather-list-move,

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfigStore } from '@/stores/configStore'
 
@@ -40,13 +40,14 @@ const mockDetails = {
 
 const cityData = ref(null)
 
-onMounted(() => {
-  const id = route.params.cityId
-
-  if (mockDetails[id]) {
-    cityData.value = mockDetails[id]
-  }
-})
+// route.params만 바뀌는 이동(같은 컴포넌트 재사용)도 감지해야 하므로 onMounted 대신 watch를 쓴다.
+watch(
+  () => route.params.cityId,
+  (id) => {
+    cityData.value = mockDetails[id] ?? null
+  },
+  { immediate: true },
+)
 
 // 상세 정보에서도 화씨 상태일 때 기온을 자동 변환
 const displayTemp = computed(() => {

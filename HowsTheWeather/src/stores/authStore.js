@@ -1,10 +1,10 @@
-import {defineStore} from 'pinia'
+import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useAuthStore = defineStore('auth', () =? {
     // State: 로그인 토큰 및 사용자 정보
-    const token =
-    const user =
+    const token = ref(localStorage.getItem('accessToken') || null)
+    const user = ref(JSON.parse(localStorage.getItem('userInfo') || 'null'))
 
     // Getters: 로그인 여부 확인 및 사용자 이름
     const isLoggedIn = computed(() => !!token.value)

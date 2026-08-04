@@ -13,7 +13,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['select-card', 'click-detail'])
+const emit = defineEmits(['select-card', 'click-detail', 'set-my-city'])
 const configStore = useConfigStore()
 
 // 실습 5의 단위 설정을 이어받아 표시 온도를 계산한다.
@@ -56,6 +56,18 @@ const temperatureView = computed(() => {
     @click="emit('select-card', city)"
     @keyup.enter="emit('select-card', city)"
   >
+    <button
+      type="button"
+      class="pin-button"
+      :class="{ 'is-pinned': isMyCity }"
+      :aria-pressed="isMyCity"
+      :disabled="isMyCity"
+      title="내 지역으로 설정"
+      @click.stop="emit('set-my-city', city.id)"
+    >
+      {{ isMyCity ? '📍' : '📌' }}
+    </button>
+
     <div class="tuned-weather-info">
       <h3>
         {{ city.name }} <span>({{ city.status }})</span>
@@ -138,6 +150,35 @@ const temperatureView = computed(() => {
 .cool {
   color: #477394;
   background: #d5edff;
+}
+
+.pin-button {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #d8dfe6;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.pin-button:hover:not(:disabled) {
+  border-color: #7db7e8;
+  transform: scale(1.08);
+}
+
+.pin-button.is-pinned {
+  border-color: #b7dfc0;
+  background: #e5f5e8;
+  cursor: default;
+}
+
+.pin-button:disabled {
+  opacity: 1;
 }
 
 .my-city-label {
