@@ -1,0 +1,62 @@
+# HowsTheWeather 과제 파일 안내
+
+## 가장 최신 튜닝 화면
+
+- `src/Components/tuned/TunedWeatherDashboard.vue`
+- `src/Components/tuned/TunedWeatherCard.vue`
+- `src/Components/tuned/MyLocationSelector.vue`
+
+실습 5의 라우터와 Pinia 단위 설정을 사용하면서 내 위치, 정렬, 검색, 온도 라벨을 추가한 화면이다.
+
+## 실습 1~5
+
+### 실습 1: 기본 렌더링
+
+- `src/Components/exercise/WeatherMockup.vue`
+
+### 실습 2: Composition API
+
+- `src/Components/exercise/WeatherComposition.vue`
+
+### 실습 3: 컴포넌트 분리
+
+- `src/Components/exercise/WeatherParent.vue`
+- `src/Components/exercise/BaseDashboardCard.vue`
+- `src/Components/exercise/SearchBar.vue`
+- `src/Components/exercise/WeatherCard.vue`
+
+### 실습 4: Vue Router
+
+- `src/router/index.js`
+- `src/views/WeatherHomeView.vue`
+- `src/views/WeatherDetailView.vue`
+- `src/views/WeatherAboutView.vue`
+- `src/views/NotFoundView.vue`
+
+### 실습 5: Pinia 단위 설정
+
+- `src/stores/configStore.js`
+- `src/Components/exercise/UnitToggler.vue`
+
+## Pinia 및 Axios 라이브러리 실습
+
+- `src/stores/counter.js`
+- `src/Components/practices/library/StoreCounter.vue`
+- `src/Components/practices/library/AxiosWeather.vue`
+- `src/Components/practices/library/AxiosJson.vue`
+
+OpenWeather API 키는 `AxiosWeather.vue`의 다음 값만 교체한다.
+
+```js
+const API_KEY = '여기에_OPENWEATHER_API_KEY_입력'
+```
+
+## 앱 진입점
+
+- `src/main.js`: Vue, Pinia, Router 등록
+- `src/App.vue`: 최신 튜닝 화면과 실습 화면 배치
+
+## 기타
+
+- `src/assets/exercise.css`: 교수님 교안 과제 공통 스타일
+- `src/stores/authStore.js`: 현재 별도로 작성 중인 인증 실습
