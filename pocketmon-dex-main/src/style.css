@@ -1,0 +1,79 @@
+/* style.css
+   -----------------------------------------------------------------------------
+   전역 스타일 시트.
+   디자인 컨셉: "포켓몬 스캐너 단말기" — 오래된 하드웨어 도감 기기의 화면을 보는 듯한 느낌.
+   - 배경은 짙은 남색(거의 검정)으로 실제 기기의 플라스틱 바디를 연상시킴
+   - 데이터(번호, 스탯, 타입)는 JetBrains Mono(모노스페이스)로 "기기가 출력하는 값"처럼 보이게 함
+   - 본문 설명은 Inter로 가독성 있게
+   - 포인트 컬러는 스캐너의 LCD 그린 + 포켓볼 레드 두 가지만 사용해서 과하지 않게
+   ----------------------------------------------------------------------------- */
+
+:root {
+  /* ---- 색상 토큰 (Color tokens) ---- */
+  --bg: #12141c;              /* 전체 배경: 짙은 남색-블랙 (기기 바디) */
+  --surface: #1b1f2c;         /* 카드/패널 배경 */
+  --surface-alt: #242a3b;     /* 살짝 밝은 패널(호버, 입력창 등) */
+  --border: #323a52;          /* 얇은 구분선 */
+  --text: #edf0f8;            /* 기본 텍스트(밝은 화면 텍스트) */
+  --text-dim: #8a92ab;        /* 보조 텍스트 */
+  --accent-scan: #6ffcab;     /* LCD 스캐너 그린 - 성공/포커스/강조 */
+  --accent-red: #ef4a5c;      /* 포켓볼 레드 - 경고/로그아웃/중요 강조 */
+  --accent-red-dim: #ef4a5c33;
+
+  /* ---- 타이포그래피 토큰 ---- */
+  --font-display: 'JetBrains Mono', monospace; /* 숫자/코드/데이터용 */
+  --font-body: 'Inter', system-ui, sans-serif;  /* 설명 텍스트용 */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  /* 은은한 스캔라인 질감을 배경에 깔아서 "화면"처럼 보이게 함 */
+  background-image:
+    radial-gradient(circle at 20% -10%, #1f2740 0%, transparent 45%),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* 포커스 상태를 항상 눈에 보이게 유지 (접근성) */
+:focus-visible {
+  outline: 2px solid var(--accent-scan);
+  outline-offset: 2px;
+}
+
+/* 모션을 줄이고 싶은 사용자를 위한 대응 (접근성) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
