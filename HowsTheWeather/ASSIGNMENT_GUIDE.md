@@ -45,11 +45,13 @@
 - `src/Components/practices/library/AxiosWeather.vue`
 - `src/Components/practices/library/AxiosJson.vue`
 
-OpenWeather API 키는 `AxiosWeather.vue`의 다음 값만 교체한다.
+OpenWeather API 키는 Git에 포함되지 않는 `.env.local` 파일에 입력한다.
 
-```js
-const API_KEY = '여기에_OPENWEATHER_API_KEY_입력'
+```env
+VITE_OPENWEATHER_API_KEY=여기에_새로_발급한_API_KEY_입력
 ```
+
+`.env.example`은 변수 이름만 공유하는 예시 파일이며 실제 키는 입력하지 않는다.
 
 ## 앱 진입점
 

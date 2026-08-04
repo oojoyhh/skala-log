@@ -6,10 +6,15 @@ const weatherData = ref(null)
 const isLoading = ref(false)
 
 const handleFetchWeather = async () => {
+  const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY
+
+  if (!API_KEY) {
+    window.alert('.env.local 파일에 OpenWeather API 키를 입력하세요.')
+    return
+  }
+
   isLoading.value = true
 
-  // OpenWeather에서 발급받은 API 키를 아래 문자열에 입력하세요.
-  const API_KEY = '65c2851f43f4e203f93655009709144a'
   const URL = `https://api.openweathermap.org/data/2.5/weather?lat=35.158582&lon=126.804975&appid=${API_KEY}&units=metric&lang=kr`
 
   try {
