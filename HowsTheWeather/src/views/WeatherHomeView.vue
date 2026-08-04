@@ -19,14 +19,12 @@ const weatherList = ref([
 const searchQuery = ref('')
 const selectedCityInfo = ref('카드를 클릭하거나 검색해 보세요.')
 
-// 초기 마운트 시 주소창의 쿼리 스트링을 읽어서 검색 상태 복원
 onMounted(() => {
   if (route.query.search) {
     searchQuery.value = route.query.search
   }
 })
 
-// 검색어가 바뀔 때마다 주소창의 쿼리 스트링 변경
 watch(searchQuery, (newQuery) => {
   router.push({
     path: route.path,
@@ -42,7 +40,6 @@ const filteredWeatherList = computed(() => {
   return weatherList.value.filter((item) => item.name.includes(query))
 })
 
-// 상세보기 신호를 받으면 해당 도시의 동적 경로로 이동
 const handleDetailJump = (id) => {
   router.push(`/weather/${id}`)
 }
