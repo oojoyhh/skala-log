@@ -30,11 +30,6 @@ const router = createRouter({
   routes,
 })
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes
-})
-
 // Navigation Guard 연동
 router.beforeEach((to, from) => {
   // Guard 내부에서 authStore 호출
