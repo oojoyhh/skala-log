@@ -69,7 +69,7 @@ const showDetail = (cityName, status) => {
 
 <style scoped>
 .dashboard-wrapper {
-  width: 600px;
+  width: min(100%, 600px);
   margin: 0 auto;
 }
 </style>

@@ -28,7 +28,10 @@ onMounted(() => {
 watch(searchQuery, (newQuery) => {
   router.push({
     path: route.path,
-    query: { search: newQuery || undefined },
+    query: {
+      ...route.query,
+      search: newQuery || undefined,
+    },
   })
 })
 

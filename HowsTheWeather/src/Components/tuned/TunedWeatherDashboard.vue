@@ -1,233 +1,201 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ArrowRight, WarningFilled } from '@element-plus/icons-vue'
 
-import TunedWeatherCard from './TunedWeatherCard.vue'
+import { fetchCurrentWarnings, fetchWarningRegions } from '@/api/kmaWarningApi'
+import { cities } from '@/api/weatherApi'
+import { getCityWarnings } from '@/domain/weatherWarning'
+import { fetchCityWeatherSummary } from '@/services/weatherService'
+import MyWeatherHero from './MyWeatherHero.vue'
 
-const route = useRoute()
 const router = useRouter()
 
-const weatherList = ref([
-  { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
-  { id: 'city_02', name: '수원', temp: 24, status: '비' },
-  { id: 'city_03', name: '부산', temp: 26, status: '구름' },
-  { id: 'city_04', name: '속초', temp: 20, status: '비바람' },
-])
+const weatherData = ref(null)
+const myCityId = ref(cities[0].id)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const warnings = ref([])
 
-const searchQuery = ref('')
-const selectedCityInfo = ref(null)
-const myCityId = ref('city_02')
+const loadWeather = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    const city = cities.find((item) => item.id === myCityId.value) ?? cities[0]
+    weatherData.value = await fetchCityWeatherSummary(city)
+  } catch (error) {
+    errorMessage.value = error.message || '날씨 데이터를 불러오지 못했습니다.'
+  } finally {
+    isLoading.value = false
+  }
+}
 
 // 선택한 내 위치의 도시 객체를 찾는다.
 const myCityInfo = computed(() => {
-  return weatherList.value.find((city) => city.id === myCityId.value) ?? null
+  return weatherData.value
 })
 
-// 검색어가 포함된 도시만 반환한다.
-const filteredWeatherList = computed(() => {
-  const query = searchQuery.value.trim()
+const warningSummary = computed(() => {
+  if (!warnings.value.length) return ''
 
-  if (!query) {
-    return weatherList.value
+  const firstWarning = warnings.value[0]
+  const extraCount = warnings.value.length - 1
+  return `${firstWarning.region} ${firstWarning.type} ${firstWarning.level}${extraCount ? ` 외 ${extraCount}건` : ''}`
+})
+
+const loadWarnings = async () => {
+  try {
+    const cityName = cities.find((city) => city.id === myCityId.value)?.name ?? cities[0].name
+    const [regions, currentWarnings] = await Promise.all([
+      fetchWarningRegions(),
+      fetchCurrentWarnings(),
+    ])
+    warnings.value = getCityWarnings(currentWarnings, regions, cityName)
+  } catch {
+    // 대시보드는 특보 API 오류로 막지 않고, 특보 화면에서 자세한 오류를 안내한다.
+    warnings.value = []
   }
-
-  return weatherList.value.filter((city) => city.name.includes(query))
-})
-
-// 내 지역은 검색어와 무관하게 항상 목록 맨 위에 노출한다.
-const displayedWeatherList = computed(() => {
-  const filtered = filteredWeatherList.value
-  const pinnedCity = myCityInfo.value
-  const pinnedIsInFiltered = pinnedCity && filtered.some((city) => city.id === pinnedCity.id)
-  const list = pinnedCity && !pinnedIsInFiltered ? [pinnedCity, ...filtered] : filtered
-
-  return [...list].sort((cityA, cityB) => {
-    const cityAIsMyCity = cityA.id === myCityId.value
-    const cityBIsMyCity = cityB.id === myCityId.value
-
-    return Number(cityBIsMyCity) - Number(cityAIsMyCity)
-  })
-})
-
-// 마지막 글자의 받침 여부에 따라 '이' 또는 '가'를 붙인다.
-const selectedCityMessage = computed(() => {
-  if (!selectedCityInfo.value) {
-    return '카드를 클릭하거나 검색해 보세요.'
-  }
-
-  const cityName = selectedCityInfo.value.name
-  const lastCharacterCode = cityName.charCodeAt(cityName.length - 1)
-  const isHangul = lastCharacterCode >= 0xac00 && lastCharacterCode <= 0xd7a3
-  const hasFinalConsonant = isHangul && (lastCharacterCode - 0xac00) % 28 !== 0
-  const particle = hasFinalConsonant ? '이' : '가'
-
-  return `${cityName}${particle} 선택되었습니다.`
-})
-
-const updateMyCity = (cityId) => {
-  myCityId.value = cityId
 }
 
-const selectCity = (city) => {
-  selectedCityInfo.value = city
-}
-
-// 실습 4·5에서 만든 동적 경로를 그대로 활용한다.
-const goToWeatherDetail = (city) => {
-  router.push(`/weather/${city.id}`)
-}
-
-// 저장된 내 위치와 공유 가능한 검색어(URL 쿼리)를 화면이 열릴 때 불러온다.
+// 저장된 내 위치를 화면이 열릴 때 불러온다.
 onMounted(() => {
   const savedCityId = localStorage.getItem('tunedMyCityId')
-  const isValidCity = weatherList.value.some((city) => city.id === savedCityId)
+  const isValidCity = cities.some((city) => city.id === savedCityId)
 
   if (isValidCity) {
     myCityId.value = savedCityId
   }
 
-  if (route.query.search) {
-    searchQuery.value = route.query.search
-  }
-})
-
-// 내 위치가 바뀔 때마다 다음 방문을 위해 저장한다.
-watch(myCityId, (cityId) => {
-  localStorage.setItem('tunedMyCityId', cityId)
-})
-
-// 검색어를 URL 쿼리에 반영해 검색 상태를 공유/새로고침해도 유지되게 한다.
-watch(searchQuery, (newQuery) => {
-  router.push({
-    path: route.path,
-    query: { search: newQuery || undefined },
-  })
+  loadWeather()
+  loadWarnings()
 })
 </script>
 
 <template>
   <div class="tuned-dashboard">
-    <section class="tuned-panel">
-      <h2>🔍 지역별 날씨 검색</h2>
+    <header class="dashboard-heading">
+      <el-tag type="primary" effect="light" round>LIVE WEATHER</el-tag>
+      <h1>How's The Weather?</h1>
+      <p>내 지역의 현재 날씨와 시간대별 예보를 한눈에 확인하세요.</p>
+    </header>
 
-      <input
-        v-model="searchQuery"
-        class="tuned-search-input"
-        type="text"
-        placeholder="검색할 도시 이름 입력"
-      />
+    <el-card v-if="warnings.length" class="warning-banner" shadow="never">
+      <div class="warning-banner-body">
+        <span class="warning-icon" aria-hidden="true">
+          <el-icon><WarningFilled /></el-icon>
+        </span>
+        <div class="warning-copy">
+          <span>WEATHER ALERT</span>
+          <strong>{{ warningSummary }}</strong>
+          <small>내 지역에 발효 중인 특보가 있습니다. 외출 전 행동 요령을 확인하세요.</small>
+        </div>
+        <el-button type="danger" plain @click="router.push('/forecast')">
+          자세히 보기 <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+        </el-button>
+      </div>
+    </el-card>
 
-      <p class="tuned-pin-hint">📌 카드의 핀 아이콘을 누르면 내 지역으로 고정됩니다.</p>
-
-      <TransitionGroup
-        v-if="displayedWeatherList.length > 0"
-        name="tuned-weather-list"
-        tag="div"
-        class="tuned-weather-list"
-      >
-        <TunedWeatherCard
-          v-for="city in displayedWeatherList"
-          :key="city.id"
-          :city="city"
-          :is-my-city="city.id === myCityId"
-          @select-card="selectCity"
-          @click-detail="goToWeatherDetail"
-          @set-my-city="updateMyCity"
-        />
-      </TransitionGroup>
-
-      <p v-else class="tuned-no-results">검색 결과와 일치하는 도시가 없습니다.</p>
-    </section>
-
-    <div class="tuned-status-bar" role="status">{{ selectedCityMessage }}</div>
+    <el-alert
+      v-if="errorMessage"
+      :title="errorMessage"
+      type="error"
+      show-icon
+      :closable="false"
+    />
+    <el-skeleton v-else-if="isLoading && !weatherData" animated :rows="6" />
+    <MyWeatherHero v-else-if="myCityInfo" :weather="myCityInfo" />
   </div>
 </template>
 
 <style scoped>
 .tuned-dashboard {
   display: grid;
-  gap: 20px;
-  width: min(100%, 760px);
+  gap: 22px;
+  width: min(100%, 820px);
   margin: 0 auto;
 }
 
-.tuned-panel {
-  padding: 24px;
-  border: 1px solid #dfe5eb;
-  border-radius: 12px;
-  background: #f8fafc;
-  box-shadow: 0 2px 8px rgb(27 43 65 / 4%);
-}
-
-.tuned-panel h2 {
-  margin: 0 0 16px;
-  color: #334d69;
-  font-size: 21px;
-}
-
-.tuned-search-input {
-  width: 100%;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid #9ba7b3;
-  border-radius: 4px;
-  color: #24364b;
-  background: #fff;
-  font: inherit;
-  outline: none;
-}
-
-.tuned-search-input:focus {
-  border-color: #438fd1;
-  box-shadow: 0 0 0 3px rgb(67 143 209 / 18%);
-}
-
-.tuned-pin-hint {
-  margin: 8px 0 0;
-  color: #68788a;
-  font-size: 14px;
-}
-
-.tuned-weather-list {
+.dashboard-heading {
   display: grid;
-  gap: 14px;
-  margin-top: 16px;
+  justify-items: start;
+  padding: 8px 4px 0;
 }
 
-.tuned-weather-list-move,
-.tuned-weather-list-enter-active,
-.tuned-weather-list-leave-active {
-  transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+.dashboard-heading > :deep(.el-tag) {
+  margin-bottom: 14px;
 }
 
-.tuned-weather-list-enter-from,
-.tuned-weather-list-leave-to {
-  opacity: 0;
-  transform: translateY(14px) scale(0.98);
+.dashboard-heading h1 {
+  margin: 0 0 6px;
+  color: #303133;
+  font-size: clamp(1.75rem, 5vw, 2.45rem);
+  letter-spacing: -0.04em;
 }
 
-.tuned-no-results {
-  padding: 36px 16px;
+.dashboard-heading p {
   margin: 0;
-  color: #c0392b;
-  text-align: center;
+  color: #909399;
 }
 
-.tuned-status-bar {
-  padding: 16px 20px;
-  border: 1px solid #d8ebd8;
-  border-radius: 9px;
-  color: #299548;
-  background: #ebf7eb;
-  text-align: center;
-  font-weight: 700;
+.warning-banner {
+  overflow: hidden;
+  border-color: #fab6b6;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #fef0f0, #fff);
+}
+
+.warning-banner :deep(.el-card__body) {
+  padding: 18px 20px;
+}
+
+.warning-banner-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.warning-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  color: #f56c6c;
+  background: #fde2e2;
+  font-size: 23px;
+  place-items: center;
+}
+
+.warning-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.warning-copy > span {
+  color: #f56c6c;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.warning-copy strong {
+  color: #713838;
+}
+
+.warning-copy small {
+  color: #a16c6c;
 }
 
 @media (max-width: 560px) {
-  .tuned-panel {
-    padding: 16px;
+  .warning-banner-body {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: flex-start;
+  }
+
+  .warning-banner-body :deep(.el-button) {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 }
 </style>

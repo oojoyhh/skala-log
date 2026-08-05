@@ -1,114 +1,279 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useConfigStore } from '@/stores/configStore'
+import { cities, fetchCityAirQuality, fetchCityWeather } from '@/api/weatherApi'
+import { fetchCityForecastView } from '@/services/weatherService'
+import { convertTemperature } from '@/domain/weather'
+import AirQualityCard from '@/Components/tuned/AirQualityCard.vue'
+import HourlyForecast from '@/Components/tuned/HourlyForecast.vue'
+import DailyForecast from '@/Components/tuned/DailyForecast.vue'
+import SunArc from '@/Components/tuned/SunArc.vue'
+import WeatherMetrics from '@/Components/tuned/WeatherMetrics.vue'
 
 const route = useRoute()
 const router = useRouter()
 const configStore = useConfigStore()
 
-const mockDetails = {
-  city_01: {
-    name: '대한민국 서울특별시',
-    temp: 28,
-    status: '맑음',
-    humidity: '55%',
-    wind: '2.5m/s',
-  },
-  city_02: {
-    name: '경기도 수원시 영통구',
-    temp: 24,
-    status: '비',
-    humidity: '85%',
-    wind: '4.1m/s',
-  },
-  city_03: {
-    name: '부산광역시 해운대구',
-    temp: 26,
-    status: '구름',
-    humidity: '65%',
-    wind: '5.0m/s',
-  },
-  city_04: {
-    name: '강원특별자치도 속초시',
-    temp: 20,
-    status: '비바람',
-    humidity: '78%',
-    wind: '6.2m/s',
-  },
-}
-
 const cityData = ref(null)
+const hourly = ref([])
+const daily = ref([])
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 // route.params만 바뀌는 이동(같은 컴포넌트 재사용)도 감지해야 하므로 onMounted 대신 watch를 쓴다.
 watch(
   () => route.params.cityId,
-  (id) => {
-    cityData.value = mockDetails[id] ?? null
+  async (id) => {
+    const city = cities.find((item) => item.id === id)
+    cityData.value = null
+    hourly.value = []
+    daily.value = []
+    errorMessage.value = ''
+
+    if (!city) {
+      errorMessage.value = '해당 지역의 정보가 없습니다.'
+      return
+    }
+
+    isLoading.value = true
+    try {
+      const [weather, forecast, airQuality] = await Promise.all([
+        fetchCityWeather(city),
+        fetchCityForecastView(city),
+        fetchCityAirQuality(city),
+      ])
+      const today = forecast.daily[0]
+
+      cityData.value = {
+        ...weather,
+        ...airQuality,
+        minTemp: Math.min(weather.temp, today?.minTemp ?? weather.temp),
+        maxTemp: Math.max(weather.temp, today?.maxTemp ?? weather.temp),
+      }
+      hourly.value = forecast.hourly
+      daily.value = forecast.daily
+    } catch (error) {
+      errorMessage.value = error.message || '날씨 데이터를 불러오지 못했습니다.'
+    } finally {
+      isLoading.value = false
+    }
   },
   { immediate: true },
 )
 
-// 상세 정보에서도 화씨 상태일 때 기온을 자동 변환
-const displayTemp = computed(() => {
-  if (!cityData.value) return 0
+const displayTemp = computed(() => convertTemperature(cityData.value?.temp ?? 0, configStore.unit))
+const displayFeelsLike = computed(() =>
+  convertTemperature(cityData.value?.feelsLike ?? 0, configStore.unit),
+)
+const displayMin = computed(() =>
+  convertTemperature(cityData.value?.minTemp ?? 0, configStore.unit),
+)
+const displayMax = computed(() =>
+  convertTemperature(cityData.value?.maxTemp ?? 0, configStore.unit),
+)
 
-  const rawTemp = cityData.value.temp
+const metrics = computed(() => {
+  if (!cityData.value) return []
 
-  if (configStore.unit === 'fahrenheit') {
-    return Math.round((rawTemp * 9) / 5 + 32)
-  }
-
-  return rawTemp
+  return [
+    { label: '체감', value: `${displayFeelsLike.value}°` },
+    { label: '습도', value: `${cityData.value.humidity}%` },
+    { label: '기압', value: `${cityData.value.pressure}hPa` },
+    { label: '풍속', value: `${cityData.value.wind}m/s` },
+  ]
 })
 </script>
 
 <template>
-  <div class="detail-container">
-    <h3>📊 지역별 상세 기상 관측 정보</h3>
-    <hr />
+  <el-card class="detail-container" shadow="hover">
+    <el-skeleton v-if="isLoading" class="detail-skeleton" animated :rows="6" />
+    <el-alert
+      v-else-if="errorMessage"
+      :title="errorMessage"
+      type="error"
+      show-icon
+      :closable="false"
+    />
 
-    <div v-if="cityData" class="info-card">
-      <h4>📍 지정 지역: {{ cityData.name }}</h4>
-      <p>
-        실시간 기온:
-        <strong>{{ displayTemp }}{{ configStore.unitSymbol }}</strong>
-      </p>
-      <p>기상 현황: {{ cityData.status }}</p>
-      <p>대기 습도: {{ cityData.humidity }}</p>
-      <p>현재 풍속: {{ cityData.wind }}</p>
-    </div>
+    <template v-else-if="cityData">
+      <header class="detail-header">
+        <el-button @click="router.push('/')">홈 대시보드</el-button>
+        <el-button type="primary" plain @click="router.push('/cities')">지역 목록</el-button>
+      </header>
 
-    <div v-else>
-      <p>해당 지역의 상세 데이터 장부가 존재하지 않습니다.</p>
-    </div>
+      <div class="detail-main">
+        <div class="detail-identity">
+          <img
+            class="detail-icon"
+            :src="`https://openweathermap.org/img/wn/${cityData.icon}@2x.png`"
+            :alt="cityData.status"
+          />
 
-    <button class="back-btn" @click="router.push('/')">← 메인 대시보드로 돌아가기</button>
-  </div>
+          <div class="detail-name-col">
+            <small>상세 날씨</small>
+            <h2>{{ cityData.name }}</h2>
+            <p class="detail-status">{{ cityData.status }}</p>
+          </div>
+        </div>
+
+        <div class="detail-temp">
+          <strong>{{ displayTemp }}{{ configStore.unitSymbol }}</strong>
+          <small>오늘 최저 {{ displayMin }}° · 최고 {{ displayMax }}°</small>
+        </div>
+      </div>
+
+      <WeatherMetrics class="detail-metrics" :metrics="metrics" />
+
+      <div class="detail-secondary">
+        <AirQualityCard :pm10="cityData.pm10" :pm25="cityData.pm25" />
+        <SunArc :sunrise="cityData.sunrise" :sunset="cityData.sunset" />
+      </div>
+
+      <section class="detail-forecast">
+        <HourlyForecast :hourly="hourly" />
+        <DailyForecast :daily="daily" />
+      </section>
+    </template>
+  </el-card>
 </template>
 
 <style scoped>
 .detail-container {
-  margin: 0 auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: #e4e7ed;
+  border-radius: 16px;
+  background: #fff;
 }
 
-.info-card {
-  background: #f1f2f6;
-  padding: 15px;
-  border-radius: 6px;
-  margin: 15px 0;
+.detail-container :deep(.el-card__body) {
+  padding: 24px;
 }
 
-.back-btn {
-  padding: 8px 12px;
-  background: #2c3e50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.detail-skeleton {
+  padding: 8px 4px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.detail-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.detail-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.detail-icon {
+  flex: 0 0 auto;
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  background: var(--weather-blue-soft);
+}
+
+.detail-status {
+  margin: 1px 0 0;
+  color: #5c7891;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.detail-name-col {
+  display: grid;
+  gap: 4px;
+}
+
+.detail-name-col small {
+  color: #718096;
+  font-weight: 700;
+}
+
+.detail-name-col h2 {
+  margin: 0;
+  color: #2d4864;
+  font-size: 38px;
+  line-height: 1.08;
+}
+
+.detail-temp {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 5px;
+  text-align: right;
+}
+
+.detail-temp strong {
+  color: #1f354b;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.detail-temp small {
+  color: #71879a;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.detail-metrics {
+  margin-top: 20px;
+}
+
+.detail-metrics :deep(div) {
+  background: #fff;
+}
+
+.detail-secondary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.detail-forecast {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+@media (max-width: 560px) {
+  .detail-container :deep(.el-card__body) {
+    padding: 18px;
+  }
+
+  .detail-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-temp {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .detail-temp strong {
+    font-size: 40px;
+  }
+
+  .detail-name-col h2 {
+    font-size: 32px;
+    white-space: nowrap;
+  }
+
+  .detail-icon {
+    width: 82px;
+    height: 82px;
+  }
 }
 </style>

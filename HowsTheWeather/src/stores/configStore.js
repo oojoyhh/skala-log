@@ -16,9 +16,16 @@ export const useConfigStore = defineStore('config', () => {
     unit.value = unit.value === 'celsius' ? 'fahrenheit' : 'celsius'
   }
 
+  function setUnit(newUnit) {
+    if (newUnit === 'celsius' || newUnit === 'fahrenheit') {
+      unit.value = newUnit
+    }
+  }
+
   return {
     unit,
     unitSymbol,
     toggleUnit,
+    setUnit,
   }
 })

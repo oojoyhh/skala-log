@@ -1,3 +1,10 @@
+:root {
+  --weather-blue: #3b82c4;
+  --weather-blue-dark: #245f91;
+  --weather-blue-soft: #e7f2fb;
+  --weather-blue-faint: #f5faff;
+}
+
 /* 1. 전체 최외곽 컨테이너 레벨 정의 */
 .app-container {
   max-width: 900px;
@@ -7,9 +14,9 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   font-family:
-    'Pretendard',
     -apple-system,
     BlinkMacSystemFont,
+    'Apple SD Gothic Neo',
     system-ui,
     Roboto,
     sans-serif;
@@ -79,14 +86,14 @@ h1 {
 
 /* Vue Router가 활성화된 링크 태그에 자동으로 부여하는 클래스 */
 .navigation-bar .router-link-exact-active {
-  color: #3498db;
-  border-bottom: 2px solid #3498db;
+  color: var(--weather-blue);
+  border-bottom: 2px solid var(--weather-blue);
   padding-bottom: 2px;
 }
 
 /* 과제페이지 스타일 - Component 분리 후 각 페이지별로 이동 */
 .dashboard-wrapper {
-  width: 600px;
+  width: min(100%, 760px);
   margin: 0 auto;
 }
 
@@ -146,4 +153,27 @@ input {
   color: #2e7d32;
   font-weight: bold;
   border-radius: 6px;
+}
+
+@media (max-width: 700px) {
+  .app-container {
+    box-sizing: border-box;
+    width: calc(100% - 20px);
+    padding: 20px 16px;
+    margin: 16px 10px;
+  }
+
+  .navigation-bar {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 12px;
+  }
+
+  .nav-item {
+    font-size: 14px;
+  }
+
+  .divider {
+    display: none;
+  }
 }

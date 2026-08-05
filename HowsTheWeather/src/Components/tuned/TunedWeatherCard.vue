@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue'
+import { ArrowRight, Location } from '@element-plus/icons-vue'
+
 import { useConfigStore } from '@/stores/configStore'
+import { convertTemperature } from '@/domain/weather'
 
 const props = defineProps({
   city: {
@@ -11,202 +14,228 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  compact: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['select-card', 'click-detail', 'set-my-city'])
 const configStore = useConfigStore()
 
-// 실습 5의 단위 설정을 이어받아 표시 온도를 계산한다.
-const displayTemp = computed(() => {
-  const rawTemp = props.city.temp
-
-  if (configStore.unit === 'fahrenheit') {
-    return Math.round((rawTemp * 9) / 5 + 32)
-  }
-
-  return rawTemp
-})
-
-const temperatureView = computed(() => {
-  if (props.city.temp >= 26) {
-    return {
-      label: '🔥 더움 (26도 이상)',
-      className: 'hot',
-    }
-  }
-
-  if (props.city.temp >= 21) {
-    return {
-      label: '☁️ 보통 (21도 이상 26도 미만)',
-      className: 'normal',
-    }
-  }
-
-  return {
-    label: '❄️ 선선함 (21도 미만)',
-    className: 'cool',
-  }
-})
+const displayTemp = computed(() => convertTemperature(props.city.temp, configStore.unit))
+const displayMin = computed(() => convertTemperature(props.city.minTemp, configStore.unit))
+const displayMax = computed(() => convertTemperature(props.city.maxTemp, configStore.unit))
 </script>
 
 <template>
-  <article
+  <el-card
     class="tuned-weather-card"
+    :class="{ 'is-my-city': isMyCity, 'is-compact': compact }"
+    shadow="never"
+    :body-style="{ padding: '0' }"
     tabindex="0"
     @click="emit('select-card', city)"
     @keyup.enter="emit('select-card', city)"
   >
-    <button
-      type="button"
-      class="pin-button"
-      :class="{ 'is-pinned': isMyCity }"
-      :aria-pressed="isMyCity"
-      :disabled="isMyCity"
-      title="내 지역으로 설정"
-      @click.stop="emit('set-my-city', city.id)"
-    >
-      {{ isMyCity ? '📍' : '📌' }}
-    </button>
+    <article class="card-content">
+      <header class="card-header">
+        <button
+          class="location-mark"
+          :class="{ 'is-my-city': isMyCity }"
+          :aria-pressed="isMyCity"
+          :disabled="isMyCity"
+          :title="isMyCity ? '내 지역' : '내 지역으로 설정'"
+          :aria-label="isMyCity ? '내 지역' : `내 지역으로 설정: ${city.name}`"
+          @click.stop="emit('set-my-city', city.id)"
+        >
+          <el-icon><Location /></el-icon>
+        </button>
 
-    <div class="tuned-weather-info">
-      <h3>
-        {{ city.name }} <span>({{ city.status }})</span>
-        <small v-if="isMyCity" class="my-city-label">📍 내 지역</small>
-      </h3>
+        <div class="city-heading">
+          <h3>{{ city.name }}</h3>
+          <span class="weather-status"><i aria-hidden="true"></i>{{ city.status }}</span>
+        </div>
 
-      <p>현재 기온: {{ displayTemp }}{{ configStore.unitSymbol }}</p>
+        <strong class="card-temp">{{ displayTemp }}{{ configStore.unitSymbol }}</strong>
+      </header>
 
-      <span class="temperature-label" :class="temperatureView.className">
-        {{ temperatureView.label }}
-      </span>
-    </div>
-
-    <button type="button" @click.stop="emit('click-detail', city)">상세보기</button>
-  </article>
+      <footer class="card-footer">
+        <span>최저 {{ displayMin }}° · 최고 {{ displayMax }}°</span>
+        <el-button
+          class="detail-link"
+          type="primary"
+          link
+          @click.stop="emit('click-detail', city)"
+        >
+          상세 날씨 <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+        </el-button>
+      </footer>
+    </article>
+  </el-card>
 </template>
 
 <style scoped>
 .tuned-weather-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  min-height: 128px;
-  padding: 20px;
-  border: 1px solid #d8dfe6;
-  border-radius: 8px;
-  background: white;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dfe7ef;
+  border-radius: 16px;
+  background: #fff;
   cursor: pointer;
   transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tuned-weather-card :deep(.el-card__body) {
+  padding: 0;
 }
 
 .tuned-weather-card:hover,
 .tuned-weather-card:focus-visible {
-  border-color: #7db7e8;
-  box-shadow: 0 7px 18px rgb(46 108 160 / 12%);
+  border-color: #9bc7eb;
+  box-shadow: 0 10px 24px rgb(46 108 160 / 11%);
   outline: none;
   transform: translateY(-2px);
 }
 
-.tuned-weather-info h3,
-.tuned-weather-info p {
-  margin: 0;
+.tuned-weather-card.is-my-city {
+  border-color: #79bbff;
+  background: linear-gradient(145deg, #fff, #f4f9ff);
 }
 
-.tuned-weather-info h3 {
-  margin-bottom: 7px;
-  color: #2d4864;
+.card-content {
+  padding: 18px;
 }
 
-.tuned-weather-info h3 span {
-  font-weight: 500;
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
 }
 
-.tuned-weather-info p {
-  margin-bottom: 10px;
-}
-
-.temperature-label {
-  display: inline-block;
-  padding: 7px 12px;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.hot {
-  color: #994f58;
-  background: #ffd3d8;
-}
-
-.normal {
-  color: #645985;
-  background: #e3dcf7;
-}
-
-.cool {
-  color: #477394;
-  background: #d5edff;
-}
-
-.pin-button {
+.location-mark {
+  display: grid;
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: 1px solid #d8dfe6;
-  border-radius: 50%;
-  background: #fff;
-  font-size: 16px;
-  line-height: 1;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 11px;
+  color: #3b82c4;
+  background: #eaf4fc;
+  font-size: 17px;
   cursor: pointer;
-  transition: transform 0.15s;
+  place-items: center;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
-.pin-button:hover:not(:disabled) {
-  border-color: #7db7e8;
-  transform: scale(1.08);
+.location-mark:hover:not(:disabled) {
+  background: #d9ecff;
+  transform: scale(1.06);
 }
 
-.pin-button.is-pinned {
-  border-color: #b7dfc0;
-  background: #e5f5e8;
+.location-mark.is-my-city {
+  color: #fff;
+  background: #3b82c4;
   cursor: default;
 }
 
-.pin-button:disabled {
+.location-mark:disabled {
   opacity: 1;
 }
 
-.my-city-label {
-  display: inline-block;
-  padding: 3px 7px;
-  margin-left: 6px;
-  border-radius: 999px;
-  color: #26743b;
-  background: #e5f5e8;
-  font-size: 12px;
-  vertical-align: middle;
+.city-heading {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 0;
 }
 
-.tuned-weather-card button {
-  flex: 0 0 auto;
-  padding: 9px 14px;
-  border: 1px solid #c6b9e5;
-  border-radius: 4px;
-  color: #625387;
-  background: #f0ebfc;
+.city-heading h3 {
+  margin: 0;
+  overflow: hidden;
+  color: #2d4864;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-status {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  color: #60778e;
+  font-size: 12.5px;
   font-weight: 700;
-  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-status i {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #79bbff;
+  box-shadow: 0 0 0 3px #ecf5ff;
+}
+
+.card-temp {
+  flex: 0 0 auto;
+  color: #203b56;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f5;
+}
+
+.card-footer > span {
+  color: #8493a3;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.detail-link {
+  flex: 0 0 auto;
+  height: auto;
+  padding: 2px 0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tuned-weather-card.is-compact .card-content {
+  padding: 16px;
+}
+
+.tuned-weather-card.is-compact .card-temp {
+  font-size: 24px;
 }
 
 @media (max-width: 560px) {
-  .tuned-weather-card {
-    align-items: flex-start;
-    gap: 12px;
+  .card-content,
+  .tuned-weather-card.is-compact .card-content {
     padding: 16px;
   }
 }

@@ -6,14 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:production": "vite build --mode production",
     "preview": "vite preview",
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "format": "prettier --write --experimental-cli src/",
+    "predeploy": "GITHUB_PAGES=true npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@svg-maps/south-korea": "^2.0.0",
     "axios": "^1.19.0",
+    "element-plus": "^2.14.3",
     "pinia": "^4.0.2",
     "vue": "rc",
     "vue-router": "^5.2.0"
@@ -28,7 +35,7 @@
     "globals": "^17.7.0",
     "npm-run-all2": "^9.0.2",
     "oxlint": "~1.73.0",
-    "prettier": "3.9.5",
+    "prettier": "^3.9.6",
     "vite": "^8.1.5",
     "vite-plugin-vue-devtools": "^8.1.5",
     "vue-eslint-parser": "^10.4.1"
