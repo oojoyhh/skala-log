@@ -1,4 +1,4 @@
-// 기상청 wrn_now_data.php는 WRN/LVL/CMD를 코드가 아닌 한글 텍스트("폭염", "중대경보", "변경" 등)로 내려준다.
+// 기상청 wrn_now_data.php는 WRN/LVL/CMD를 코드가 아닌 한글 텍스트("폭염", "중대경보", "변경" 등)로 내려줌
 const excludedCommands = new Set(['해제', '대치해제', '변경해제'])
 
 const formatDate = (value) =>
@@ -88,7 +88,7 @@ const actionGuides = [
 
 const defaultGuideTips = ['공식 재난문자와 지자체 안내를 확인하세요.', '무리한 외출을 자제하고 주변 안전에 유의하세요.']
 
-// 특보 종류(문자열)에 맞는 행동 요령을 찾는다. 못 찾으면 일반 안내로 대신한다.
+// 특보 종류(문자열)에 맞는 행동 요령을 찾음. 없으면 일반 안내로 대신함
 export const getActionGuide = (type) => {
   const matched = actionGuides.find((guide) => type.includes(guide.match))
   return matched?.tips ?? defaultGuideTips
@@ -106,7 +106,7 @@ export const getCityWarnings = (warnings, regions, cityName) => {
   const metropolitanRegionName = metropolitanRegionNames[cityName]
   const activeWarnings = getActiveWarnings(warnings)
 
-  // 이름이 같은 다른 시·군(예: 경기도 광주시)이 섞이지 않도록 광역 행정구역을 우선한다.
+  // 이름이 같은 다른 시·군(예: 경기도 광주시)이 섞이지 않도록 광역 행정구역을 우선함
   if (metropolitanRegionName) {
     return activeWarnings.filter(
       (warning) =>

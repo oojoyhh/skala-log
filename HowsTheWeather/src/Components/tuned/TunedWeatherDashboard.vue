@@ -31,7 +31,7 @@ const loadWeather = async () => {
   }
 }
 
-// 선택한 내 위치의 도시 객체를 찾는다.
+// 선택한 내 위치의 도시 객체를 찾음
 const myCityInfo = computed(() => {
   return weatherData.value
 })
@@ -49,12 +49,12 @@ const loadWarnings = async () => {
     const cityName = cities.find((city) => city.id === myCityId.value)?.name ?? cities[0].name
     warnings.value = await fetchCityWarnings(cityName)
   } catch {
-    // 대시보드는 특보 API 오류로 막지 않고, 특보 화면에서 자세한 오류를 안내한다.
+    // 대시보드는 특보 API 오류로 막지 않음. 자세한 오류는 특보 화면에서 안내함
     warnings.value = []
   }
 }
 
-// 저장된 내 위치를 화면이 열릴 때 불러온다.
+// 저장된 내 위치를 화면이 열릴 때 불러옴
 onMounted(() => {
   const savedCityId = localStorage.getItem('tunedMyCityId')
   const isValidCity = cities.some((city) => city.id === savedCityId)

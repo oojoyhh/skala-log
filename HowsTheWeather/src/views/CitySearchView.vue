@@ -38,7 +38,7 @@ const loadWeather = async () => {
   }
 }
 
-// 검색어가 포함된 도시만 반환한다.
+// 검색어가 포함된 도시만 반환함
 const filteredWeatherList = computed(() => {
   const query = searchQuery.value.trim()
 
@@ -53,7 +53,7 @@ const displayedWeatherList = computed(() => {
   return filteredWeatherList.value
 })
 
-// 마지막 글자의 받침 여부에 따라 '이' 또는 '가'를 붙인다.
+// 마지막 글자의 받침 여부에 따라 '이' 또는 '가'를 붙임
 const selectedCityMessage = computed(() => {
   if (!selectedCityInfo.value) {
     return '카드를 클릭하거나 검색해 보세요.'
@@ -76,7 +76,7 @@ const selectCity = (city) => {
   selectedCityInfo.value = city
 }
 
-// 실습 4·5에서 만든 동적 경로를 그대로 활용한다.
+// 실습 4·5에서 만든 동적 경로를 그대로 활용함
 const goToWeatherDetail = (city) => {
   router.push(`/weather/${city.id}`)
 }
@@ -96,7 +96,7 @@ const selectRegion = ({ regionName, city }) => {
   }
 }
 
-// 저장된 내 위치와 공유 가능한 검색어(URL 쿼리)를 화면이 열릴 때 불러온다.
+// 저장된 내 위치와 공유 가능한 검색어(URL 쿼리)를 화면이 열릴 때 불러옴
 onMounted(() => {
   const savedCityId = localStorage.getItem('tunedMyCityId')
   const isValidCity = cities.some((city) => city.id === savedCityId)
@@ -112,12 +112,12 @@ onMounted(() => {
   loadWeather()
 })
 
-// 내 위치가 바뀔 때마다 다음 방문을 위해 저장한다.
+// 내 위치가 바뀔 때마다 다음 방문을 위해 저장함
 watch(myCityId, (cityId) => {
   localStorage.setItem('tunedMyCityId', cityId)
 })
 
-// 검색어를 URL 쿼리에 반영해 검색 상태를 공유/새로고침해도 유지되게 한다.
+// 검색어를 URL 쿼리에 반영해 검색 상태를 공유/새로고침해도 유지되게 함
 watch(searchQuery, (newQuery) => {
   router.push({
     path: route.path,

@@ -22,7 +22,7 @@ const daily = ref([])
 const isLoading = ref(false)
 const errorMessage = ref('')
 
-// route.params만 바뀌는 이동(같은 컴포넌트 재사용)도 감지해야 하므로 onMounted 대신 watch를 쓴다.
+// route.params만 바뀌는 이동(같은 컴포넌트 재사용)도 감지해야 하므로 onMounted 대신 watch를 씀
 watch(
   () => route.params.cityId,
   async (id) => {

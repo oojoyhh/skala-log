@@ -6,9 +6,8 @@ const result1 = ref('')
 const result2 = ref('')
 const result3 = ref('')
 
-// =================================================================
-// 📝 [과제 1] 회원 명단 가공 및 VIP 추출 핸들러
-// =================================================================
+
+// [과제 1] 회원 명단 가공 및 VIP 추출 핸들러
 const runTask1 = () => {
   const members = ['김수원', '이서울', '박부산', '최대전']
   const rawData = { id: 101, grade: 'VIP', details: { score: 95 } }
@@ -22,9 +21,7 @@ const runTask1 = () => {
   result1.value = `부산 포함 여부: ${memberContainsPark} / 등급: ${grade} / 점수: ${score}점`
 }
 
-// =================================================================
-// 📝 [과제 2] 장바구니 상품 추가 및 기본값 방어 시스템
-// =================================================================
+// [과제 2] 장바구니 상품 추가 및 기본값 방어 시스템
 const runTask2 = () => {
   const currentCart = ['Apple', 'Banana']
   const newProduct = { name: 'Orange', stock: 0, preview: null }
@@ -36,9 +33,8 @@ const runTask2 = () => {
   result2.value = `카트: ${updatedCart} / 이미지: ${imgStatus} / 수량: ${finalStock}개`
 }
 
-// =================================================================
-// 📝 [과제 3] 서버 연쇄 데이터 요청 및 에러 통합 제어 (Async/Await)
-// =================================================================
+
+// [과제 3] 서버 연쇄 데이터 요청 및 에러 통합 제어 (Async/Await)
 // 가상의 백엔드 API (수정 금지 - Promise 반환형 화살표 함수)
 const fetchUserId = () => new Promise((res) => setTimeout(() => res({ uid: 777 }), 400))
 const fetchUserProfile = (uid) =>

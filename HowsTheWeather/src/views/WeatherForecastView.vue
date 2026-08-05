@@ -40,7 +40,7 @@ const otherRegionWarnings = computed(() =>
   filteredWarnings.value.filter((warning) => !warning.isMyRegion),
 )
 
-// 특보 등급(주의보 < 경보 < 중대경보) 순서로 배지 색을 진하게 올린다.
+// 특보 등급(주의보 < 경보 < 중대경보) 순서로 배지 색을 진하게 올림
 const warningBadgeClass = (warning) => {
   if (warning.level.includes('중대')) return 'is-critical'
   if (warning.level.includes('경보')) return 'is-warning'
@@ -51,7 +51,7 @@ const warningBadgeClass = (warning) => {
 // 배지 등급 비교용 순위 (낮을수록 경미)
 const badgeSeverityRank = { 'is-advisory': 1, 'is-warning': 2, 'is-critical': 3, 'is-neutral': 0 }
 
-// 특보 종류별로 가장 심각한 등급의 배지 색을 골라 행동 요령 카드에도 같이 입힌다.
+// 특보 종류별로 가장 심각한 등급의 배지 색을 골라 행동 요령 카드에도 같이 입힘
 const activeGuides = computed(() => {
   const bestByType = new Map()
 

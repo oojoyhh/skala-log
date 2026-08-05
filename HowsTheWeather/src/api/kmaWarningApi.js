@@ -12,8 +12,8 @@ const getErrorMessage = (response) => {
   }
 }
 
-// 기상청 API는 파일마다 구분자가 다르다: wrn_reg.php는 공백(고정폭 정렬용 패딩 포함),
-// wrn_now_data.php는 쉼표로 필드를 구분한다. 두 경우 모두 fields 순서가 실제 컬럼 순서와 같다.
+// 기상청 API는 파일마다 구분자가 다름: wrn_reg.php는 공백(고정폭 정렬용 패딩 포함),
+// wrn_now_data.php는 쉼표로 필드를 구분함. 두 경우 모두 fields 순서 = 실제 컬럼 순서
 const parseTable = (text, fields, { delimiter = 'whitespace' } = {}) => {
   const lines = text.split(/\r?\n/)
 

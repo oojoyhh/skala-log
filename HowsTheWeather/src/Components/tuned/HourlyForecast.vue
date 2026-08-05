@@ -16,7 +16,7 @@ const displayTemp = (temp) => convertTemperature(temp, configStore.unit)
 const GRAPH_HEIGHT = 72
 const GRAPH_PAD = 16
 
-// 시간대별 기온을 그래프 좌표(0~100%, px)로 변환한다.
+// 시간대별 기온을 그래프 좌표(0~100%, px)로 변환함
 const graphCoords = computed(() => {
   const temps = props.hourly.map((item) => displayTemp(item.temp))
   if (!temps.length) return []

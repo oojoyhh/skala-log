@@ -53,7 +53,7 @@ const regionNames = {
   ulsan: '울산광역시',
 }
 
-// 현재 제공 중인 주요 도시를 각 시·도의 대표 관측 지점으로 연결한다.
+// 현재 제공 중인 주요 도시를 각 시·도의 대표 관측 지점으로 연결함
 const representativeCities = {
   busan: '부산',
   daegu: '대구',
