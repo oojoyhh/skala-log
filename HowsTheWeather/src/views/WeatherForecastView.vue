@@ -2,9 +2,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { Bell, LocationFilled } from '@element-plus/icons-vue'
 
-import { fetchCurrentWarnings, fetchWarningRegions } from '@/api/kmaWarningApi'
 import { cities } from '@/api/weatherApi'
-import { getActionGuide, getCityWarnings } from '@/domain/weatherWarning'
+import { getActionGuide } from '@/domain/weatherWarning'
+import { fetchAllCityWarnings } from '@/services/warningService'
+import WeatherLoadingState from '@/Components/tuned/WeatherLoadingState.vue'
 
 const warnings = ref([])
 const isWarningLoading = ref(false)
@@ -47,6 +48,7 @@ const warningBadgeClass = (warning) => {
   return 'is-neutral'
 }
 
+// 배지 등급 비교용 순위 (낮을수록 경미)
 const badgeSeverityRank = { 'is-advisory': 1, 'is-warning': 2, 'is-critical': 3, 'is-neutral': 0 }
 
 // 특보 종류별로 가장 심각한 등급의 배지 색을 골라 행동 요령 카드에도 같이 입힌다.
@@ -73,6 +75,7 @@ const scrollToGuide = () => {
   document.getElementById('action-guide')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+// 동일 특보를 여러 지역에서 중복 없이 식별하기 위한 합성 키
 const warningKey = (warning) =>
   `${warning.regionId}-${warning.type}-${warning.level}-${warning.command}-${warning.effectiveAt}`
 
@@ -81,17 +84,15 @@ const loadWarnings = async () => {
   warningError.value = ''
 
   try {
-    const [regions, currentWarnings] = await Promise.all([
-      fetchWarningRegions(),
-      fetchCurrentWarnings(),
-    ])
+    const cityWarnings = await fetchAllCityWarnings(cities)
     const warningMap = new Map()
 
-    cities.forEach((city) => {
-      getCityWarnings(currentWarnings, regions, city.name).forEach((warning) => {
+    cityWarnings.forEach(({ city, warnings: warningsForCity }) => {
+      warningsForCity.forEach((warning) => {
         const key = warningKey(warning)
         const existingWarning = warningMap.get(key)
 
+        // 같은 특보가 다른 지역에도 걸치면 지역명만 추가하고 항목은 중복 생성하지 않음
         if (existingWarning) {
           if (!existingWarning.mappedCities.includes(city.name)) {
             existingWarning.mappedCities.push(city.name)
@@ -108,6 +109,7 @@ const loadWarnings = async () => {
       })
     })
 
+    // 내 지역 특보를 목록 상단에 먼저 노출
     warnings.value = [...warningMap.values()].sort(
       (a, b) => Number(b.isMyRegion) - Number(a.isMyRegion),
     )
@@ -144,7 +146,8 @@ onMounted(() => {
         </el-button>
       </div>
       <h1>전체 기상특보</h1>
-      <p>지도에 연결된 주요 지역의 특보를 모아보고, 내 지역 특보는 가장 위에서 확인하세요.</p>
+      <p>지도에 연결된 주요 지역의 특보를 확인하세요.</p>
+      
     </header>
 
     <el-card class="warning-panel" shadow="hover">
@@ -169,7 +172,11 @@ onMounted(() => {
         :closable="false"
         description="APIHub에서 특보구역과 특보현황 조회 활용신청을 확인해주세요."
       />
-      <el-skeleton v-else-if="isWarningLoading" animated :rows="3" />
+      <WeatherLoadingState
+        v-else-if="isWarningLoading"
+        title="기상특보를 확인하는 중이에요"
+        description="지도 지역과 내 지역의 최신 특보를 정리하고 있습니다."
+      />
       <el-empty
         v-else-if="!warnings.length"
         description="지도에 연결된 지역에 현재 발효 중인 기상특보가 없습니다."

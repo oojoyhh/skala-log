@@ -10,6 +10,7 @@ import HourlyForecast from '@/Components/tuned/HourlyForecast.vue'
 import DailyForecast from '@/Components/tuned/DailyForecast.vue'
 import SunArc from '@/Components/tuned/SunArc.vue'
 import WeatherMetrics from '@/Components/tuned/WeatherMetrics.vue'
+import WeatherLoadingState from '@/Components/tuned/WeatherLoadingState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -87,7 +88,11 @@ const metrics = computed(() => {
 
 <template>
   <el-card class="detail-container" shadow="hover">
-    <el-skeleton v-if="isLoading" class="detail-skeleton" animated :rows="6" />
+    <WeatherLoadingState
+      v-if="isLoading"
+      title="상세 날씨를 불러오는 중이에요"
+      description="시간별·일별 예보와 대기질 정보를 준비하고 있습니다."
+    />
     <el-alert
       v-else-if="errorMessage"
       :title="errorMessage"
@@ -147,10 +152,6 @@ const metrics = computed(() => {
 
 .detail-container :deep(.el-card__body) {
   padding: 24px;
-}
-
-.detail-skeleton {
-  padding: 8px 4px;
 }
 
 .detail-header {

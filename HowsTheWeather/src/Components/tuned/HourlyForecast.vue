@@ -32,6 +32,7 @@ const graphCoords = computed(() => {
   }))
 })
 
+// leftPct(0~100)는 viewBox 너비가 1000이라 10 곱해서 좌표로 변환함
 const linePoints = computed(() =>
   graphCoords.value.map((point) => `${point.leftPct * 10},${point.top}`).join(' '),
 )

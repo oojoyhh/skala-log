@@ -7,6 +7,7 @@ import { cities } from '@/api/weatherApi'
 import { fetchWeatherList } from '@/services/weatherService'
 import KoreaMap from '@/Components/tuned/KoreaMap.vue'
 import TunedWeatherCard from '@/Components/tuned/TunedWeatherCard.vue'
+import WeatherLoadingState from '@/Components/tuned/WeatherLoadingState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -133,6 +134,12 @@ watch(searchQuery, (newQuery) => {
       <p>전국 주요 도시의 실시간 날씨를 검색하고, 원하는 지역을 내 지역으로 고정하세요.</p>
     </header>
 
+    <WeatherLoadingState
+      v-if="isLoading && !weatherList.length"
+      title="전국 지역 날씨를 불러오는 중이에요"
+      description="지도와 주요 지역별 날씨 카드를 준비하고 있습니다."
+    />
+
     <KoreaMap
       v-if="weatherList.length"
       :cities="weatherList"
@@ -150,9 +157,9 @@ watch(searchQuery, (newQuery) => {
       <template #header>
         <div class="search-panel-header">
           <div>
-            <small class="search-panel-kicker">MAJOR CITY WEATHER</small>
-            <span>주요 지역별 날씨</span>
-            <small v-if="updatedAt" class="updated-at">마지막 업데이트 {{ updatedAt }}</small>
+            <span class="search-panel-kicker">MAJOR CITY WEATHER</span>
+            <h2>주요 지역별 날씨</h2>
+            <p v-if="updatedAt">마지막 업데이트 {{ updatedAt }}</p>
           </div>
           <div class="search-panel-actions">
             <el-button :disabled="!searchQuery" @click="showAllCities">
@@ -274,24 +281,23 @@ watch(searchQuery, (newQuery) => {
   gap: 16px;
 }
 
-.search-panel-header .updated-at {
-  display: block;
-  margin-top: 3px;
-  color: #7a8795;
-}
-
 .search-panel-kicker {
-  display: block;
-  margin-bottom: 4px;
   color: #409eff;
   font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.1em;
 }
 
-.search-panel-header span {
+.search-panel-header h2 {
+  margin: 4px 0 2px;
   color: #303133;
-  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.search-panel-header p {
+  margin: 0;
+  color: #909399;
+  font-size: 0.82rem;
 }
 
 .search-panel-actions {

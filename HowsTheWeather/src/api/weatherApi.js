@@ -69,6 +69,7 @@ export const fetchCityForecast = async (city) => {
       tempMax: Math.round(item.main.temp_max),
       status: item.weather[0].description,
       icon: item.weather[0].icon,
+      // pop은 강수확률(0~1)이라 100 곱해서 % 단위로 변환
       rainChance: Math.round(item.pop * 100),
     })),
   }

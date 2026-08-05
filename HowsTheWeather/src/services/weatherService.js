@@ -15,6 +15,7 @@ export const fetchCityWeatherSummary = async (city) => {
   return {
     ...weather,
     ...airQuality,
+    // 현재 기온이 예보 min/max 범위 밖일 수 있어서 같이 비교해서 보정
     minTemp: Math.min(weather.temp, today.minTemp),
     maxTemp: Math.max(weather.temp, today.maxTemp),
     hourly: forecast.hourly,

@@ -16,6 +16,7 @@ const handleFetchWeather = async () => {
 
   isLoading.value = true
 
+  // 브라우저 위치 정보 API 대신 실습용 좌표를 고정값으로 사용함
   const URL = `https://api.openweathermap.org/data/2.5/weather?lat=35.158582&lon=126.804975&appid=${API_KEY}&units=metric&lang=kr`
 
   try {

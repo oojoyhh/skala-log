@@ -25,7 +25,8 @@ const progress = computed(() => {
 const isDaytime = computed(() => now >= props.sunrise && now <= props.sunset)
 
 const sunPosition = computed(() => {
-  const angle = (Math.PI * (1 - progress.value)).valueOf()
+  // progress(0~1)를 반원 각도(π~0)로 바꿔서 호 위 위치를 구함
+  const angle = Math.PI * (1 - progress.value)
   return {
     x: 100 + 80 * Math.cos(angle),
     y: 90 - 80 * Math.sin(angle),

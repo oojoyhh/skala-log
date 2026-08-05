@@ -51,6 +51,7 @@ const startDownload = () => {
   isDownloading.value = true
   downloadProgress.value = 0
 
+  // 400ms마다 20%씩 증가시켜 2초 안에 100%를 채움
   downloadTimer = window.setInterval(() => {
     downloadProgress.value = Math.min(downloadProgress.value + 20, 100)
 

@@ -1,3 +1,4 @@
+// timestamp에 timezone offset(초)을 더한 뒤 UTC 기준으로 읽으면 현지 시각이 나옴
 const getLocalDate = (timestamp, timezone) => {
   const date = new Date((timestamp + timezone) * 1000)
   return {
@@ -20,6 +21,7 @@ export const createForecastView = ({ items, timezone }) => {
   })
 
   const daily = [...days.values()].slice(0, 5).map((day) => {
+    // 하루 아이콘/날씨는 정오에 가장 가까운 시간대 값을 대표로 사용
     const center = day.items.reduce((closest, item) => {
       const hour = getLocalDate(item.timestamp, timezone).hour
       const closestHour = getLocalDate(closest.timestamp, timezone).hour

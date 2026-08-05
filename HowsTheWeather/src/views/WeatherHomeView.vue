@@ -25,6 +25,7 @@ onMounted(() => {
   }
 })
 
+// 검색어를 URL 쿼리에 반영해 새로고침/공유해도 유지되게 함
 watch(searchQuery, (newQuery) => {
   router.push({
     path: route.path,

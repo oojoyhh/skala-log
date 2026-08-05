@@ -3,11 +3,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ArrowRight, WarningFilled } from '@element-plus/icons-vue'
 
-import { fetchCurrentWarnings, fetchWarningRegions } from '@/api/kmaWarningApi'
 import { cities } from '@/api/weatherApi'
-import { getCityWarnings } from '@/domain/weatherWarning'
 import { fetchCityWeatherSummary } from '@/services/weatherService'
+import { fetchCityWarnings } from '@/services/warningService'
 import MyWeatherHero from './MyWeatherHero.vue'
+import WeatherLoadingState from './WeatherLoadingState.vue'
 
 const router = useRouter()
 
@@ -47,11 +47,7 @@ const warningSummary = computed(() => {
 const loadWarnings = async () => {
   try {
     const cityName = cities.find((city) => city.id === myCityId.value)?.name ?? cities[0].name
-    const [regions, currentWarnings] = await Promise.all([
-      fetchWarningRegions(),
-      fetchCurrentWarnings(),
-    ])
-    warnings.value = getCityWarnings(currentWarnings, regions, cityName)
+    warnings.value = await fetchCityWarnings(cityName)
   } catch {
     // 대시보드는 특보 API 오류로 막지 않고, 특보 화면에서 자세한 오류를 안내한다.
     warnings.value = []
@@ -103,7 +99,11 @@ onMounted(() => {
       show-icon
       :closable="false"
     />
-    <el-skeleton v-else-if="isLoading && !weatherData" animated :rows="6" />
+    <WeatherLoadingState
+      v-else-if="isLoading && !weatherData"
+      title="내 지역 날씨를 불러오는 중이에요"
+      description="현재 날씨와 시간대별 예보를 준비하고 있습니다."
+    />
     <MyWeatherHero v-else-if="myCityInfo" :weather="myCityInfo" />
   </div>
 </template>
