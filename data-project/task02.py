@@ -1,6 +1,8 @@
 """
 Python Practice - 예외 처리 + Pydantic 검증 파이프라인
 
+작성자: 판교캠퍼스 8반 P253 김효주
+
 원본 JSON 데이터를 안전하게 불러온 뒤, Pydantic으로 각 레코드를
 검증하여 정상 데이터(valid)와 오류 데이터(errors)로 분리하고,
 그 결과를 각각 CSV/JSON으로 저장한 뒤 다시 읽어 건수를 확인한다.
@@ -11,13 +13,12 @@ Python Practice - 예외 처리 + Pydantic 검증 파이프라인
 4) 결과 저장 - valid는 CSV, errors는 JSON으로 저장 후 재로딩 검증
 
 변경 내역
-- v1: json.loads() -> json.load(f) 수정
-- v2: SalesRecord 스키마 정의 (region/month min_length=1, amount gt=0, category Optional)
-- v3: model_dump(record) -> record.model_dump() 수정
-- v4: json.dump에 ensure_ascii=False 적용
-- v5: CSV 재로딩 검증 추가 (len(reloaded) == len(valid))
-- v6: 예외 처리 보완 - JSONDecodeError 추가 처리, valid 0건 시 IndexError 방지
-
+- v1: 최초 작성
+- v2: (1) region/month가 공백(" ")만 있어도 min_length=1은 통과시키는 것을
+          확인, StringConstraints(strip_whitespace=True)로 공백 제거 후
+          길이를 검사하도록 변경.
+      (2) 파일 인코딩이 다르면 UnicodeDecodeError로 프로그램이 죽는 것을
+          확인, OSError 계열까지 함께 처리하도록 except 추가.
 """
 
 import csv
@@ -52,6 +53,7 @@ def safe_load_csv(path):
     finally:
         print('로딩 종료')
 
+
 # 2) Pydantic v2 스키마 정의
 # SalesRecord : 한 건의 판매 레코드가 갖춰야 할 형태를 정의한다.
 #   region, month - 비어있으면 안 됨 (min_length=1)
@@ -62,6 +64,7 @@ class SalesRecord(BaseModel):
     month: str = Field(min_length=1)
     amount: float = Field(gt=0)
     category: Optional[str] = None
+
 
 # 3) 검증 파이프라인
 # raw_data를 한 건씩 SalesRecord로 변환 시도한다.
@@ -77,6 +80,7 @@ def build_validation_pipeline(raw_data):
         except ValidationError as e:
             errors.append({"row": row, "error": str(e)})
     return valid, errors
+
 
 # 4) 결과 파일 저장 + 재로딩 확인
 # valid는 CSV로, errors는 JSON으로 저장한 뒤
@@ -99,6 +103,7 @@ def save_and_reload(valid, errors):
         reloaded = list(csv.DictReader(f))
 
     return reloaded
+
 
 if __name__ == "__main__":
     # 1) 파일 로딩 checkpoint
