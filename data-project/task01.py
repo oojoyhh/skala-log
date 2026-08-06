@@ -75,11 +75,11 @@ if dropped > 0:
 #   s['region'], s['amount']를 직접 인덱싱해도 안전하다.
 up1000 = [s for s in sales if s['amount'] >= 1000]
 
-regions = {s['region'] for s in sales}
-region_total = {
-    r: sum(s['amount'] for s in sales if s['region'] == r)
-    for r in regions
-}
+region_amounts = defaultdict(list)
+for s in sales:
+    region_amounts[s['region']].append(s['amount'])
+
+region_total = {r: sum(amounts) for r, amounts in region_amounts.items()}
 
 # 2) Counter + defaultdict
 # [기능 설명]
