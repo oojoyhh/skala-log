@@ -18,13 +18,10 @@
 
 [변경내역]
   v1.0 : 2x2 서브플롯(히스토그램+KDE, 박스플롯, 월별 라인, 상관 히트맵) 작성
-  v1.1 : t-test(서울 vs 부산), 카이제곱(category x payment_method) 검정 + 귀무/대립가설 추가
+  v1.1 : t-test(서울 vs 부산), 카이제곱(region x category) 검정 + 귀무/대립가설 추가
   v1.2 : sklearn Pipeline 구성, 학습/평가/저장/재로딩 추가
   v1.3 : Plotly 인터랙티브 차트 작성 및 html 저장 추가
-  v1.4 : Pipeline에 predict() 명시적 호출 추가
-  v1.5 : 카이제곱 검정을 category x payment_method -> region x category로 변경 (연계 취지에 맞춤)
-         한글 폰트 자동 탐색 함수 추가
-  v1.6 : t-test/카이제곱 함수를 특정 값(서울/부산 등) 하드코딩 대신 인자로 받도록 일반화
+  v1.5 : t-test/카이제곱 함수를 특정 값(서울/부산 등) 하드코딩 대신 인자로 받도록 일반화
 """
 
 import os
@@ -55,7 +52,7 @@ def set_korean_font() -> str:
     font_name = next((f for f in candidates if f in installed), "DejaVu Sans")
 
     plt.rcParams["font.family"] = font_name
-    plt.rcParams["axes.unicode_minus"] = False  # 한글 폰트 적용 시 마이너스(-) 기호가 깨지는 것 방지
+    plt.rcParams["axes.unicode_minus"] = False
 
     if font_name == "DejaVu Sans":
         print("한글 폰트를 찾지 못해 그래프 제목이 깨질 수 있습니다.")
