@@ -1,7 +1,7 @@
 """
-sales_100k.csv EDA 시각화 · 통계 검정 · sklearn Pipeline · Plotly 인터랙티브 차트
+시각화 4종 · 통계 검정 · sklearn Pipeline 
 
-작성자: 김효주
+작성자: 판교캠퍼스 8반 P253 김효주
 
 [전체 설명]
   1) 실습3에서 IQR로 이상치 제거한 df_clean을 입력으로 사용해
